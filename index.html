@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Union - Cocktail Bar & Restaurant</title>
+    <meta name="description"
+        content="Discover the finest cuisine and cocktails at Union. A premium dining experience in a sophisticated atmosphere.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --accent-color: #d4af37;
+            /* Gold */
+            --accent-hover: #f1c40f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(0, 0, 0, 0.6);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 400;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            width: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('/home/code/.gemini/antigravity/brain/dc6f2a0d-fced-497f-9c81-13dcf69aa523/luxury_restaurant_interior_1779619773381.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 10%;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 10vw, 6rem);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            max-width: 600px;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        /* --- Menu Section --- */
+        .menu-section {
+            padding: 100px 5%;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .section-header .divider {
+            width: 60px;
+            height: 2px;
+            background: var(--accent-color);
+            margin: 0 auto;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .menu-category {
+            margin-bottom: 60px;
+        }
+
+        .menu-category h3 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .item-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .item-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+        }
+
+        /* --- Featured Item --- */
+        .featured-item {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 50px;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 100px;
+        }
+
+        .featured-img {
+            height: 500px;
+            background: url('/home/code/.gemini/antigravity/brain/dc6f2a0d-fced-497f-9c81-13dcf69aa523/gourmet_dish_starters_1779619892318.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .featured-content {
+            padding: 50px;
+        }
+
+        .featured-content h4 {
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .featured-content h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 80px 5% 40px;
+            background: #000;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .contact-box h5 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .contact-box p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            opacity: 0.4;
+            margin-top: 50px;
+        }
+
+        /* animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .featured-item {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-img {
+                height: 300px;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">Union</div>
+        <ul class="nav-links">
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#featured">Reservations</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero">
+        <p>A Symphony of Flavors</p>
+        <h1>Pure Elegance</h1>
+        <p>Experience the art of fine dining and artisanal mixology in the heart of the city.</p>
+        <a href="#menu" class="btn-primary">View the Menu</a>
+    </div>
+
+    <section id="menu" class="menu-section">
+        <div class="section-header">
+            <h2>The Menu</h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="menu-category">
+            <h3>Starters</h3>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Saffron Scallops</span>
+                            <span class="item-price">$24</span>
+                        </div>
+                        <p class="item-description">Pan-seared scallops, saffron foam, pea puree, crispy prosciutto.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Truffle Arancini</span>
+                            <span class="item-price">$18</span>
+                        </div>
+                        <p class="item-description">Wild mushroom risotto balls, black truffle oil, parmesan dip.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Beef Carpaccio</span>
+                            <span class="item-price">$22</span>
+                        </div>
+                        <p class="item-description">Thinly sliced wagyu beef, capers, arugula, lemon zest, olive oil.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="featured" class="featured-item">
+            <div class="featured-img"></div>
+            <div class="featured-content">
+                <h4>Chef's Selection</h4>
+                <h2>Signature Seafood Medley</h2>
+                <p>A celebration of the ocean's finest offerings, prepared with seasonal herbs and a citrus-infused
+                    glaze. Perfectly paired with our house white.</p>
+                <a href="#" class="btn-primary">Reserve a Table</a>
+            </div>
+        </div>
+
+        <div class="menu-category">
+            <h3>Mains</h3>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Herb Crusted Lamb</span>
+                            <span class="item-price">$42</span>
+                        </div>
+                        <p class="item-description">Roasted rack of lamb, mint salsa verde, potato fondant, glazed
+                            carrots.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Wild Mushroom Risotto</span>
+                            <span class="item-price">$34</span>
+                        </div>
+                        <p class="item-description">Carnaroli rice, seasonal wild mushrooms, 24-month aged parmesan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-category">
+            <h3>Cocktails</h3>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Midnight Orchid</span>
+                            <span class="item-price">$16</span>
+                        </div>
+                        <p class="item-description">Hibiscus-infused gin, elderflower liqueur, lemon, egg white.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-header">
+                            <span class="item-title">Smoked Old Fashioned</span>
+                            <span class="item-price">$18</span>
+                        </div>
+                        <p class="item-description">Small-batch bourbon, maple syrup, bitters, applewood smoke.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-logo">Union</div>
+        <div class="contact-info">
+            <div class="contact-box">
+                <h5>Location</h5>
+                <p>123 Luxury Lane, City Center</p>
+                <p>New York, NY 10001</p>
+            </div>
+            <div class="contact-box">
+                <h5>Hours</h5>
+                <p>Mon - Thu: 5pm - 11pm</p>
+                <p>Fri - Sun: 12pm - 12am</p>
+            </div>
+            <div class="contact-box">
+                <h5>Reservations</h5>
+                <p>+1 (555) 123-4567</p>
+                <p>hello@unionrestaraunt.com</p>
+            </div>
+        </div>
+        <p class="copyright">&copy; 2026 Union Cocktail Bar & Restaurant. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
