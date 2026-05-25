@@ -11,7 +11,10 @@
 <body>
     <div class="container">
         <header>
-            <div class="back-icon">←</div>
+            <div class="back-icon" style="visibility: hidden;">←</div>
+            <div class="logo" style="text-align: center; flex: 1;">
+                <img src="./assets/food_bank_logo.png" alt="Food Bank" style="height: 40px;">
+            </div>
             <div class="menu-icon">☰</div>
         </header>
 
@@ -25,54 +28,42 @@
 
         <section class="category-section">
             <div class="section-title">Food Category</div>
-            <div class="grid-wrapper">
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200&auto=format&fit=crop"
-                        alt="Burger" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini" onclick="location.href='items.html'">Add Cart</button>
+            <div class="grid-wrapper four-cols">
+                <div class="card food-item-grid" onclick="showModal('Breakfast')">
+                    <img src="https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?q=80&w=100&auto=format&fit=crop"
+                        alt="Breakfast" class="img-fluid">
+                    <p class="text-sm">Breakfast</p>
                 </div>
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1621510456681-23a01ec36f57?q=80&w=200&auto=format&fit=crop"
-                        alt="Egg" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini">Add Cart</button>
+                <div class="card food-item-grid" onclick="showModal('Lunch')">
+                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100&auto=format&fit=crop"
+                        alt="Lunch" class="img-fluid">
+                    <p class="text-sm">Lunch</p>
                 </div>
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop"
-                        alt="Salad" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini">Add Cart</button>
+                <div class="card food-item-grid" onclick="showModal('Snack')">
+                    <img src="https://images.unsplash.com/photo-1599490659223-930b44997003?q=80&w=100&auto=format&fit=crop"
+                        alt="Snack" class="img-fluid">
+                    <p class="text-sm">Snack</p>
+                </div>
+                <div class="card food-item-grid" onclick="showModal('Dinner')">
+                    <img src="https://images.unsplash.com/photo-1515516969532-7a6ecb1603c1?q=80&w=100&auto=format&fit=crop"
+                        alt="Dinner" class="img-fluid">
+                    <p class="text-sm">Dinner</p>
                 </div>
             </div>
         </section>
 
         <section class="category-section">
-            <div class="section-title">Food Category</div>
-            <div class="grid-wrapper">
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?q=80&w=200&auto=format&fit=crop"
-                        alt="Soup" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini">Add Cart</button>
+            <div class="section-title">Drinks Category</div>
+            <div class="grid-wrapper two-cols">
+                <div class="card food-item-grid" onclick="showModal('Soft Drinks')">
+                    <img src="https://images.unsplash.com/photo-1543253687-c931c8e01820?q=80&w=100&auto=format&fit=crop"
+                        alt="Soft" class="img-fluid">
+                    <p class="text-sm">Soft Drinks</p>
                 </div>
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1517741991040-91338b176129?q=80&w=200&auto=format&fit=crop"
-                        alt="Pancakes" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini">Add Cart</button>
-                </div>
-                <div class="card food-item-grid">
-                    <img src="https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=200&auto=format&fit=crop"
-                        alt="Pasta" class="img-fluid">
-                    <p class="text-sm">Food Name</p>
-                    <p class="price text-sm">$ 300.00</p>
-                    <button class="btn btn-primary btn-mini">Add Cart</button>
+                <div class="card food-item-grid" onclick="showModal('Hot Drinks')">
+                    <img src="https://images.unsplash.com/photo-1541167760496-162955ed8a9f?q=80&w=100&auto=format&fit=crop"
+                        alt="Hot" class="img-fluid">
+                    <p class="text-sm">Hot Drinks</p>
                 </div>
             </div>
         </section>
@@ -87,6 +78,84 @@
             </div>
         </section>
     </div>
+
+    <!-- Modal -->
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" class="modal-title">Category Title</h2>
+            <div id="modalItems" class="modal-item-list">
+                <!-- Items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuData = {
+            'Breakfast': [
+                { name: 'Classic Pancakes', price: '$12.00', img: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=100' },
+                { name: 'Omelet Special', price: '$10.00', img: 'https://images.unsplash.com/photo-1510629954389-c1e0da47dbf2?w=100' }
+            ],
+            'Lunch': [
+                { name: 'Chicken Salad', price: '$15.00', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=100' },
+                { name: 'Club Sandwich', price: '$14.00', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=100' }
+            ],
+            'Snack': [
+                { name: 'French Fries', price: '$8.00', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=100' },
+                { name: 'Chicken Wings', price: '$12.00', img: 'https://images.unsplash.com/photo-1567623485834-126b1499c57e?w=100' }
+            ],
+            'Dinner': [
+                { name: 'Grilled Salmon', price: '$22.00', img: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=100' },
+                { name: 'Steak Frites', price: '$28.00', img: 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=100' }
+            ],
+            'Soft Drinks': [
+                { name: 'Coca Cola', price: '$3.00', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100' },
+                { name: 'Fresh Orange Juice', price: '$5.00', img: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=100' }
+            ],
+            'Hot Drinks': [
+                { name: 'Cappuccino', price: '$4.50', img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=100' },
+                { name: 'Earl Grey Tea', price: '$3.50', img: 'https://images.unsplash.com/photo-1544787210-2211d402ca55?w=100' }
+            ]
+        };
+
+        function showModal(category) {
+            const modal = document.getElementById('categoryModal');
+            const title = document.getElementById('modalTitle');
+            const itemsContainer = document.getElementById('modalItems');
+
+            title.innerText = category;
+            itemsContainer.innerHTML = '';
+
+            const items = menuData[category] || [];
+            items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'modal-item';
+                itemEl.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="modal-item-info">
+                        <p class="modal-item-name">${item.name}</p>
+                        <p class="modal-item-price">${item.price}</p>
+                    </div>
+                    <button class="btn btn-primary btn-mini" style="width: auto;">Order</button>
+                `;
+                itemsContainer.appendChild(itemEl);
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+        }
+
+        // Close on overlay click
+        window.onclick = function (event) {
+            const modal = document.getElementById('categoryModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
 </body>
 
 </html>
