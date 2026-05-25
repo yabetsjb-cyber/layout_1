@@ -190,11 +190,24 @@ header {
 
 .food-item-grid {
     text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.food-item-grid:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-red);
 }
 
 .food-item-grid img {
     height: 120px;
     margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.food-item-grid:hover img {
+    transform: scale(1.05);
 }
 
 /* List Items */
