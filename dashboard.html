@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Dashboard - Food Bank</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .status-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .status-col {
+            background: #151515;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 600px;
+            border: 1px solid #222;
+        }
+
+        .col-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-count {
+            background: var(--primary-red);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .order-card {
+            background: var(--card-dark);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .order-card-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+        }
+
+        .order-meta {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-status {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #444;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Kitchen Dashboard</h1>
+            <button class="btn btn-primary" style="width: auto;" onclick="clearOrders()">Clear All</button>
+        </header>
+
+        <div class="status-columns">
+            <!-- Pending -->
+            <div class="status-col">
+                <div class="col-title">Pending <span id="count-Pending" class="order-count">0</span></div>
+                <div id="list-Pending" class="order-list"></div>
+            </div>
+            <!-- Preparing -->
+            <div class="status-col">
+                <div class="col-title">Preparing <span id="count-Preparing" class="order-count">0</span></div>
+                <div id="list-Preparing" class="order-list"></div>
+            </div>
+            <!-- Ready -->
+            <div class="status-col">
+                <div class="col-title">Ready <span id="count-Ready" class="order-count">0</span></div>
+                <div id="list-Ready" class="order-list"></div>
+            </div>
+            <!-- Completed -->
+            <div class="status-col">
+                <div class="col-title">Completed <span id="count-Completed" class="order-count">0</span></div>
+                <div id="list-Completed" class="order-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const statuses = ['Pending', 'Preparing', 'Ready', 'Completed'];
+
+            statuses.forEach(status => {
+                const list = document.getElementById(`list-${status}`);
+                const count = document.getElementById(`count-${status}`);
+                const filtered = orders.filter(o => o.status === status);
+
+                count.innerText = filtered.length;
+                list.innerHTML = filtered.length ? '' : '<p class="empty-msg">No orders</p>';
+
+                filtered.forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = 'order-card';
+                    card.innerHTML = `
+                        <div class="order-card-header">
+                            <img src="${order.img}" alt="${order.item}">
+                            <div>
+                                <p style="font-weight: 600;">${order.item}</p>
+                                <p class="order-meta">${order.time}</p>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            ${status !== 'Completed' ? `<button class="btn btn-primary btn-status" onclick="updateStatus(${order.id}, '${getNextStatus(status)}')">Move to ${getNextStatus(status)}</button>` : ''}
+                            <button class="btn btn-secondary btn-status" style="background: #333; color: white;" onclick="deleteOrder(${order.id})">Cancel</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
+        }
+
+        function getNextStatus(current) {
+            const flow = { 'Pending': 'Preparing', 'Preparing': 'Ready', 'Ready': 'Completed' };
+            return flow[current];
+        }
+
+        function updateStatus(id, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            loadOrders();
+        }
+
+        function deleteOrder(id) {
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders = orders.filter(o => o.id !== id);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            loadOrders();
+        }
+
+        function clearOrders() {
+            if (confirm('Clear all orders?')) {
+                localStorage.removeItem('orders');
+                loadOrders();
+            }
+        }
+
+        // Listen for storage changes from other tabs
+        window.addEventListener('storage', loadOrders);
+
+        // Initial load
+        loadOrders();
+    </script>
+</body>
+
+</html>

@@ -10,12 +10,10 @@
 
 <body>
     <div class="container">
-        <header>
+        <header style="height: 60px;">
             <div class="back-icon" style="visibility: hidden;">←</div>
-            <div class="logo" style="text-align: center; flex: 1;">
-                <img src="./assets/food_bank_logo.png" alt="Food Bank" style="height: 40px;">
-            </div>
-            <div class="menu-icon">☰</div>
+            <div class="logo-space" style="flex: 1;"></div>
+            <div class="menu-space" style="width: 24px;"></div>
         </header>
 
         <section class="hero">
@@ -158,12 +156,34 @@
                         <p class="modal-item-name">${item.name}</p>
                         <p class="modal-item-price">${item.price}</p>
                     </div>
-                    <button class="btn btn-primary btn-mini" style="width: auto;">Order</button>
+                    <button class="btn btn-primary btn-mini" style="width: auto;" onclick='placeOrder(${JSON.stringify(item)})'>Order</button>
                 `;
                 itemsContainer.appendChild(itemEl);
             });
 
             modal.style.display = 'flex';
+        }
+
+        function placeOrder(item) {
+            const orderId = Date.now();
+            const order = {
+                id: orderId,
+                item: item.name,
+                price: item.price,
+                img: item.img,
+                status: 'Pending',
+                time: new Date().toLocaleTimeString()
+            };
+
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            alert(`Order for ${item.name} placed successfully!`);
+            closeModal();
+
+            // Dispatch custom event for real-time feel if multiple tabs are open
+            window.dispatchEvent(new Event('storage'));
         }
 
         function closeModal() {
