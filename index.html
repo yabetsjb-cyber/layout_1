@@ -88,7 +88,9 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { db, ref, push, set } from './firebase-config.js';
+
         const menuData = {
             'Breakfast': [
                 { name: 'Classic Pancakes', price: '$12.00', img: './Breakfast/1.jpg' },
@@ -164,7 +166,7 @@
             modal.style.display = 'flex';
         }
 
-        function placeOrder(item) {
+        async function placeOrder(item) {
             const orderId = Date.now();
             const order = {
                 id: orderId,
@@ -175,20 +177,29 @@
                 time: new Date().toLocaleTimeString()
             };
 
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders.push(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
+            try {
+                console.log("Order data being sent:", order);
+                const ordersRef = ref(db, 'orders');
+                const newOrderRef = push(ordersRef);
+                await set(newOrderRef, order);
+                console.log("Order set in database successfully");
 
-            alert(`Order for ${item.name} placed successfully!`);
-            closeModal();
-
-            // Dispatch custom event for real-time feel if multiple tabs are open
-            window.dispatchEvent(new Event('storage'));
+                alert(`Order for ${item.name} placed successfully!`);
+                closeModal();
+            } catch (error) {
+                console.error("Error placing order:", error);
+                alert("Failed to place order. Please try again.");
+            }
         }
 
         function closeModal() {
             document.getElementById('categoryModal').style.display = 'none';
         }
+
+        // Expose to global scope for HTML attributes
+        window.showModal = showModal;
+        window.placeOrder = placeOrder;
+        window.closeModal = closeModal;
 
         // Close on overlay click
         window.onclick = function (event) {

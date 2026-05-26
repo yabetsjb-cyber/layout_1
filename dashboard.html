@@ -4,206 +4,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Dashboard - Food Bank</title>
+    <title>Union - Kitchen Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        body {
+            background-color: #05070A;
+            margin: 0;
+            padding: 0;
         }
 
-        .dashboard-header {
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-navbar {
+            background: #0D0F14;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            border-bottom: 1px solid #1A1D23;
         }
 
-        .status-columns {
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 2px;
+        }
+
+        .navbar-brand span {
+            color: #555;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: 400;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .qr-pass {
+            background: #1A1F2B;
+            border: 1px solid #2B3A55;
+            padding: 5px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .qr-label {
+            color: #8E9AAF;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .qr-value {
+            color: #5B9AFF;
+            font-weight: 700;
+        }
+
+        .btn-reset {
+            background: #2B3A55;
+            border: none;
+            color: #5B9AFF;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .time-display {
+            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: #1A1D23;
+            border: 1px solid #2A2D35;
+            color: #8E9AAF;
+            padding: 6px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .columns-container {
+            flex: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
         }
 
         .status-col {
-            background: #151515;
-            border-radius: 20px;
-            padding: 20px;
-            min-height: 600px;
-            border: 1px solid #222;
+            background: #0D0F14;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .col-title {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: var(--text-gray);
+        .col-header {
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom-width: 3px;
+            border-bottom-style: solid;
+        }
+
+        .col-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .order-count {
-            background: var(--primary-red);
-            color: white;
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .order-card {
-            background: var(--card-dark);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #333;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .order-card-header {
+            color: #555;
+            font-size: 1rem;
+            border: 2px solid #222;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
             display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .order-card-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-        }
-
-        .order-meta {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-        }
-
-        .order-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-status {
-            flex: 1;
-            padding: 8px;
+            align-items: center;
+            justify-content: center;
             font-size: 0.75rem;
         }
 
-        .empty-msg {
-            text-align: center;
-            color: #444;
-            margin-top: 50px;
+        /* Colors per column */
+        .col-new {
+            border-bottom-color: #E67E22;
+        }
+
+        .col-preparing {
+            border-bottom-color: #3498DB;
+        }
+
+        .col-ready {
+            border-bottom-color: #2ECC71;
+        }
+
+        .order-list {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: #15181F;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #1F2228;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .card-item-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .card-time {
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        .card-body {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-body img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+        }
+
+        .card-btn {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-move {
+            background: #2B3A55;
+            color: #5B9AFF;
         }
     </style>
 </head>
 
 <body>
     <div class="dashboard-container">
-        <header class="dashboard-header">
-            <h1>Kitchen Dashboard</h1>
-            <button class="btn btn-primary" style="width: auto;" onclick="clearOrders()">Clear All</button>
-        </header>
+        <nav class="top-navbar">
+            <div class="navbar-brand">UNION <span>KITCHEN DISPLAY</span></div>
+            <div class="navbar-actions">
+                <div class="qr-pass">
+                    <span class="qr-label">QR PASS</span>
+                    <span class="qr-value">bear48</span>
+                    <button class="btn-reset">↺ Reset</button>
+                </div>
+                <div class="time-display" id="live-time">12:00 PM</div>
+                <button class="btn-logout">Logout</button>
+            </div>
+        </nav>
 
-        <div class="status-columns">
-            <!-- Pending -->
-            <div class="status-col">
-                <div class="col-title">Pending <span id="count-Pending" class="order-count">0</span></div>
+        <div class="columns-container">
+            <!-- New Orders -->
+            <div class="status-col col-new">
+                <div class="col-header">
+                    <div class="col-title">🔥 New Orders</div>
+                    <div id="count-Pending" class="order-count">0</div>
+                </div>
                 <div id="list-Pending" class="order-list"></div>
             </div>
+
             <!-- Preparing -->
-            <div class="status-col">
-                <div class="col-title">Preparing <span id="count-Preparing" class="order-count">0</span></div>
+            <div class="status-col col-preparing">
+                <div class="col-header">
+                    <div class="col-title">🍳 Preparing</div>
+                    <div id="count-Preparing" class="order-count">0</div>
+                </div>
                 <div id="list-Preparing" class="order-list"></div>
             </div>
+
             <!-- Ready -->
-            <div class="status-col">
-                <div class="col-title">Ready <span id="count-Ready" class="order-count">0</span></div>
+            <div class="status-col col-ready">
+                <div class="col-header">
+                    <div class="col-title">🔔 Ready</div>
+                    <div id="count-Ready" class="order-count">0</div>
+                </div>
                 <div id="list-Ready" class="order-list"></div>
-            </div>
-            <!-- Completed -->
-            <div class="status-col">
-                <div class="col-title">Completed <span id="count-Completed" class="order-count">0</span></div>
-                <div id="list-Completed" class="order-list"></div>
             </div>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { db, ref, onValue, update, remove } from './firebase-config.js';
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('live-time').innerText = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Object to store order keys for easy status updates
+        let ordersMap = {};
+
         function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem('orders')) || [];
-            const statuses = ['Pending', 'Preparing', 'Ready', 'Completed'];
+            const ordersRef = ref(db, 'orders');
+            onValue(ordersRef, (snapshot) => {
+                const data = snapshot.val();
+                console.log("Dashboard received data:", data);
+                ordersMap = data || {};
 
-            statuses.forEach(status => {
-                const list = document.getElementById(`list-${status}`);
-                const count = document.getElementById(`count-${status}`);
-                const filtered = orders.filter(o => o.status === status);
+                const statuses = ['Pending', 'Preparing', 'Ready'];
+                statuses.forEach(status => {
+                    const list = document.getElementById(`list-${status}`);
+                    const count = document.getElementById(`count-${status}`);
 
-                count.innerText = filtered.length;
-                list.innerHTML = filtered.length ? '' : '<p class="empty-msg">No orders</p>';
+                    const filtered = Object.entries(ordersMap)
+                        .filter(([key, o]) => o.status === status)
+                        .map(([key, o]) => ({ ...o, firebaseKey: key }));
 
-                filtered.forEach(order => {
-                    const card = document.createElement('div');
-                    card.className = 'order-card';
-                    card.innerHTML = `
-                        <div class="order-card-header">
-                            <img src="${order.img}" alt="${order.item}">
-                            <div>
-                                <p style="font-weight: 600;">${order.item}</p>
-                                <p class="order-meta">${order.time}</p>
+                    count.innerText = filtered.length;
+                    list.innerHTML = '';
+
+                    filtered.forEach(order => {
+                        const card = document.createElement('div');
+                        card.className = 'order-card';
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <span class="card-item-name">${order.item}</span>
+                                <span class="card-time">${order.time}</span>
                             </div>
-                        </div>
-                        <div class="order-actions">
-                            ${status !== 'Completed' ? `<button class="btn btn-primary btn-status" onclick="updateStatus(${order.id}, '${getNextStatus(status)}')">Move to ${getNextStatus(status)}</button>` : ''}
-                            <button class="btn btn-secondary btn-status" style="background: #333; color: white;" onclick="deleteOrder(${order.id})">Cancel</button>
-                        </div>
-                    `;
-                    list.appendChild(card);
+                            <div class="card-body">
+                                <img src="${order.img}" alt="${order.item}">
+                                <div style="font-size: 0.85rem; color: #AAA;">Order ID: #${order.id}</div>
+                            </div>
+                            ${status !== 'Ready' ? `
+                                <button class="card-btn btn-move" onclick="updateStatus('${order.firebaseKey}', '${getNextStatus(status)}')">
+                                    Move to ${getNextStatus(status)}
+                                </button>
+                            ` : `
+                                <button class="card-btn btn-move" style="background: #1A3C2A; color: #2ECC71;" onclick="updateStatus('${order.firebaseKey}', 'Completed')">
+                                    Finish
+                                </button>
+                            `}
+                        `;
+                        list.appendChild(card);
+                    });
                 });
             });
         }
 
         function getNextStatus(current) {
-            const flow = { 'Pending': 'Preparing', 'Preparing': 'Ready', 'Ready': 'Completed' };
+            const flow = { 'Pending': 'Preparing', 'Preparing': 'Ready' };
             return flow[current];
         }
 
-        function updateStatus(id, newStatus) {
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            loadOrders();
-        }
-
-        function deleteOrder(id) {
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders = orders.filter(o => o.id !== id);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            loadOrders();
-        }
-
-        function clearOrders() {
-            if (confirm('Clear all orders?')) {
-                localStorage.removeItem('orders');
-                loadOrders();
+        async function updateStatus(key, newStatus) {
+            try {
+                if (newStatus === 'Completed') {
+                    await remove(ref(db, `orders/${key}`));
+                } else {
+                    await update(ref(db, `orders/${key}`), { status: newStatus });
+                }
+            } catch (error) {
+                console.error("Error updating status:", error);
+                alert("Failed to update status.");
             }
         }
 
-        // Listen for storage changes from other tabs
-        window.addEventListener('storage', loadOrders);
+        // Expose to global scope for HTML attributes
+        window.updateStatus = updateStatus;
 
-        // Initial load
         loadOrders();
     </script>
 </body>
