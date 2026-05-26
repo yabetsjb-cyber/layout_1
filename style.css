@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap&font-display=swap');
 
 :root {
     --bg-dark: #0D0D0D;
@@ -401,6 +401,7 @@ header {
 .grid-wrapper.two-cols {
     grid-template-columns: repeat(2, 1fr);
 }
+
 /* Toast */
 .order-toast {
     position: fixed;
