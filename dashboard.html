@@ -149,18 +149,12 @@
             border-bottom-color: #E67E22;
         }
 
-        .col-preparing {
+        .col-prep {
             border-bottom-color: #3498DB;
         }
 
         .col-ready {
             border-bottom-color: #2ECC71;
-        }
-
-        .order-list {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
         }
 
         .order-card {
@@ -169,6 +163,11 @@
             padding: 15px;
             margin-bottom: 12px;
             border: 1px solid #1F2228;
+            cursor: grab;
+        }
+
+        .order-card.dragging {
+            opacity: 0.5;
         }
 
         .card-header {
@@ -237,33 +236,38 @@
             <div class="status-col col-new">
                 <div class="col-header">
                     <div class="col-title">🔥 New Orders</div>
-                    <div id="count-Pending" class="order-count">0</div>
+                    <div id="count-new" class="order-count">0</div>
                 </div>
-                <div id="list-Pending" class="order-list"></div>
+                <div id="list-new" class="order-list" data-status="new"></div>
             </div>
 
             <!-- Preparing -->
-            <div class="status-col col-preparing">
+            <div class="status-col col-prep">
                 <div class="col-header">
                     <div class="col-title">🍳 Preparing</div>
-                    <div id="count-Preparing" class="order-count">0</div>
+                    <div id="count-prep" class="order-count">0</div>
                 </div>
-                <div id="list-Preparing" class="order-list"></div>
+                <div id="list-prep" class="order-list" data-status="prep"></div>
             </div>
 
             <!-- Ready -->
             <div class="status-col col-ready">
                 <div class="col-header">
                     <div class="col-title">🔔 Ready</div>
-                    <div id="count-Ready" class="order-count">0</div>
+                    <div id="count-ready" class="order-count">0</div>
                 </div>
-                <div id="list-Ready" class="order-list"></div>
+                <div id="list-ready" class="order-list" data-status="ready"></div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { db, ref, onValue, update, remove } from './firebase-config.js';
+        import { db, ref, onValue, update, remove, onChildAdded, onChildChanged, onChildRemoved } from './firebase-config.js';
+
+        // Notification sound
+        const bellSound = new Audio('https://actions.google.com/sounds/v1/cartoon/bell_ding.ogg');
+        let initialDataLoaded = false;
+        setTimeout(() => { initialDataLoaded = true; }, 2000);
 
         function updateTime() {
             const now = new Date();
@@ -273,77 +277,117 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        // Object to store order keys for easy status updates
-        let ordersMap = {};
-
         function loadOrders() {
             const ordersRef = ref(db, 'orders');
-            onValue(ordersRef, (snapshot) => {
-                const data = snapshot.val();
-                console.log("Dashboard received data:", data);
-                ordersMap = data || {};
 
-                const statuses = ['Pending', 'Preparing', 'Ready'];
-                statuses.forEach(status => {
-                    const list = document.getElementById(`list-${status}`);
-                    const count = document.getElementById(`count-${status}`);
+            onChildAdded(ordersRef, (snapshot) => {
+                const order = snapshot.val();
+                if (order.status === 'archived') return;
 
-                    const filtered = Object.entries(ordersMap)
-                        .filter(([key, o]) => o.status === status)
-                        .map(([key, o]) => ({ ...o, firebaseKey: key }));
+                createCard(snapshot.key, order);
+                updateCounts();
 
-                    count.innerText = filtered.length;
-                    list.innerHTML = '';
+                if (initialDataLoaded && order.status === 'new') {
+                    bellSound.currentTime = 0;
+                    bellSound.play().catch(e => console.log('Audio blocked:', e));
+                }
+            });
 
-                    filtered.forEach(order => {
-                        const card = document.createElement('div');
-                        card.className = 'order-card';
-                        card.innerHTML = `
-                            <div class="card-header">
-                                <span class="card-item-name">${order.item}</span>
-                                <span class="card-time">${order.time}</span>
-                            </div>
-                            <div class="card-body">
-                                <img src="${order.img}" alt="${order.item}">
-                                <div style="font-size: 0.85rem; color: #AAA;">Order ID: #${order.id}</div>
-                            </div>
-                            ${status !== 'Ready' ? `
-                                <button class="card-btn btn-move" onclick="updateStatus('${order.firebaseKey}', '${getNextStatus(status)}')">
-                                    Move to ${getNextStatus(status)}
-                                </button>
-                            ` : `
-                                <button class="card-btn btn-move" style="background: #1A3C2A; color: #2ECC71;" onclick="updateStatus('${order.firebaseKey}', 'Completed')">
-                                    Finish
-                                </button>
-                            `}
-                        `;
-                        list.appendChild(card);
-                    });
-                });
+            onChildChanged(ordersRef, (snapshot) => {
+                const order = snapshot.val();
+                const card = document.getElementById('order-' + snapshot.key);
+                if (card) {
+                    if (order.status === 'archived') {
+                        card.remove();
+                    } else {
+                        const list = document.getElementById(`list-${order.status}`);
+                        if (list && card.parentElement !== list) {
+                            list.appendChild(card);
+                        }
+                    }
+                }
+                updateCounts();
+            });
+
+            onChildRemoved(ordersRef, (snapshot) => {
+                const card = document.getElementById('order-' + snapshot.key);
+                if (card) card.remove();
+                updateCounts();
             });
         }
 
-        function getNextStatus(current) {
-            const flow = { 'Pending': 'Preparing', 'Preparing': 'Ready' };
-            return flow[current];
+        function createCard(key, order) {
+            const list = document.getElementById(`list-${order.status}`);
+            if (!list) return;
+
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.id = 'order-' + key;
+            card.draggable = true;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="card-item-name">${order.item}</span>
+                    <span class="card-time">${order.time}</span>
+                </div>
+                <div class="card-body">
+                    <img src="${order.img}" alt="${order.item}">
+                    <div style="font-size: 0.85rem; color: #AAA;">
+                        TBL ${order.table || '?'}<br>
+                        #${order.orderNumber || '?'}
+                    </div>
+                </div>
+                <div class="card-actions">
+                    ${order.status === 'new' ? `<button class="card-btn btn-move" onclick="updateStatus('${key}', 'prep')">Start Prep</button>` : ''}
+                    ${order.status === 'prep' ? `<button class="card-btn btn-move" onclick="updateStatus('${key}', 'ready')">Mark Ready</button>` : ''}
+                    ${order.status === 'ready' ? `<button class="card-btn btn-move" style="background: #1A3C2A; color: #2ECC71;" onclick="updateStatus('${key}', 'archived')">Finish</button>` : ''}
+                </div>
+            `;
+
+            list.appendChild(card);
+            addDragListeners(card);
+        }
+
+        function addDragListeners(card) {
+            card.addEventListener('dragstart', () => card.classList.add('dragging'));
+            card.addEventListener('dragend', () => card.classList.remove('dragging'));
+        }
+
+        const lists = document.querySelectorAll('.order-list');
+        lists.forEach(list => {
+            list.addEventListener('dragover', e => {
+                e.preventDefault();
+                const dragging = document.querySelector('.dragging');
+                if (dragging) list.appendChild(dragging);
+            });
+
+            list.addEventListener('drop', e => {
+                const dragging = document.querySelector('.dragging');
+                if (dragging) {
+                    const key = dragging.id.replace('order-', '');
+                    const newStatus = list.dataset.status;
+                    updateStatus(key, newStatus);
+                }
+            });
+        });
+
+        function updateCounts() {
+            ['new', 'prep', 'ready'].forEach(status => {
+                const count = document.querySelectorAll(`#list-${status} .order-card`).length;
+                const countEl = document.getElementById(`count-${status}`);
+                if (countEl) countEl.innerText = count;
+            });
         }
 
         async function updateStatus(key, newStatus) {
             try {
-                if (newStatus === 'Completed') {
-                    await remove(ref(db, `orders/${key}`));
-                } else {
-                    await update(ref(db, `orders/${key}`), { status: newStatus });
-                }
+                await update(ref(db, `orders/${key}`), { status: newStatus });
             } catch (error) {
                 console.error("Error updating status:", error);
-                alert("Failed to update status.");
             }
         }
 
-        // Expose to global scope for HTML attributes
         window.updateStatus = updateStatus;
-
         loadOrders();
     </script>
 </body>
