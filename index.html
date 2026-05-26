@@ -85,27 +85,9 @@
             <div id="modalItems" class="modal-item-list">
                 <!-- Items injected here -->
             </div>
-            <div class="table-input-container">
-                <span class="table-input-label">Table Number</span>
-                <input type="number" id="table-number" class="table-input" min="1" max="100" placeholder="e.g. 12">
-            </div>
         </div>
     </div>
 
-    <!-- Order Tracker -->
-    <div id="order-tracker" class="order-tracker">
-        <div class="tracker-info">
-            <span class="tracker-label">Order <span id="tracker-table"
-                    style="font-weight: 800; color: var(--primary-red);"></span></span>
-            <div style="display: flex; align-items: center;">
-                <span class="tracker-status" id="tracker-status">Sent to Kitchen 📋</span>
-                <button class="tracker-close hidden" id="tracker-close" onclick="closeTracker()">Got it! ✓</button>
-            </div>
-        </div>
-        <div class="tracker-progress">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-    </div>
 
     <script type="module">
         import { db, ref, push, set } from './firebase-config.js';
@@ -186,19 +168,11 @@
         }
 
         async function placeOrder(item) {
-            const tableNo = document.getElementById('table-number').value.trim();
-
-            if (!tableNo) {
-                showToast('⚠️ Please enter your Table Number');
-                document.getElementById('table-number').focus();
-                return;
-            }
 
             const orderNumber = Math.floor(1000 + Math.random() * 9000).toString();
             const order = {
                 id: Date.now(),
                 orderNumber: orderNumber,
-                table: tableNo,
                 item: item.name,
                 price: item.price,
                 img: item.img,
@@ -214,11 +188,6 @@
 
                 showToast(`✅ Order #${orderNumber} placed successfully!`);
                 closeModal();
-
-                // Start tracking
-                localStorage.setItem('activeOrderId', newOrderRef.key);
-                localStorage.setItem('activeOrderTable', tableNo);
-                startTracking(newOrderRef.key, tableNo);
 
             } catch (error) {
                 console.error("Error placing order:", error);
@@ -238,40 +207,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function startTracking(orderId, table) {
-            const tracker = document.getElementById('order-tracker');
-            const statusEl = document.getElementById('tracker-status');
-            const closeBtn = document.getElementById('tracker-close');
-            document.getElementById('tracker-table').textContent = `TBL ${table}`;
-
-            tracker.classList.add('visible');
-
-            const orderRef = ref(db, 'orders/' + orderId);
-            onValue(orderRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    tracker.className = `order-tracker visible status-${data.status}`;
-                    let statusText = "Sent to Kitchen 📋";
-                    closeBtn.classList.add('hidden');
-
-                    if (data.status === 'prep') statusText = "Cooking... 🍳";
-                    if (data.status === 'ready') {
-                        statusText = "Ready! 🛎️";
-                        closeBtn.classList.remove('hidden');
-                    }
-                    statusEl.textContent = statusText;
-                } else {
-                    tracker.classList.remove('visible');
-                    localStorage.removeItem('activeOrderId');
-                }
-            });
-        }
-
-        function closeTracker() {
-            document.getElementById('order-tracker').classList.remove('visible');
-            localStorage.removeItem('activeOrderId');
-            localStorage.removeItem('activeOrderTable');
-        }
 
         function closeModal() {
             document.getElementById('categoryModal').style.display = 'none';
@@ -281,14 +216,7 @@
         window.showModal = showModal;
         window.placeOrder = placeOrder;
         window.closeModal = closeModal;
-        window.closeTracker = closeTracker;
 
-        // Auto-resume tracking if they refresh
-        const savedOrderId = localStorage.getItem('activeOrderId');
-        const savedTable = localStorage.getItem('activeOrderTable');
-        if (savedOrderId && savedTable) {
-            startTracking(savedOrderId, savedTable);
-        }
 
         // Close on overlay click
         window.onclick = function (event) {
