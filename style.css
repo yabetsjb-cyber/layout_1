@@ -714,11 +714,37 @@ header {
     margin-top: 2px;
 }
 
+.summary-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .summary-item-total {
     font-weight: 700;
     font-size: 0.9rem;
     color: var(--primary-red);
     white-space: nowrap;
+}
+
+.summary-item-delete {
+    background: rgba(255, 75, 75, 0.1);
+    color: var(--primary-red);
+    border: none;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.summary-item-delete:hover {
+    background: var(--primary-red);
+    color: white;
 }
 
 .summary-footer {
