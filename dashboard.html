@@ -24,6 +24,7 @@
                 <div class="connection-dot"></div>
                 <span>Live</span>
             </div>
+            <button onclick="clearDelivered()" class="btn-logout" style="background: rgba(46, 213, 115, 0.1); border: 1px solid var(--status-ready); color: var(--status-ready); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; font-family: var(--font-main); transition: background 0.2s; margin-right: 8px;">🧹 Clear Delivered</button>
             <button id="logoutBtn" class="btn-logout" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: var(--text-white); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; font-family: var(--font-main); transition: background 0.2s;">Sign Out</button>
         </div>
     </header>
@@ -106,7 +107,7 @@
     </audio>
 
     <script type="module">
-        import { db, ref, onValue, update, auth, onAuthStateChanged, signOut } from './firebase-config.js';
+        import { db, ref, onValue, update, remove, auth, onAuthStateChanged, signOut } from './firebase-config.js';
 
         // --- Auth Protection ---
         onAuthStateChanged(auth, (user) => {
@@ -279,6 +280,28 @@
                 await update(orderRef, { needsAssistance: false });
             } catch (err) {
                 console.error('Failed to clear assistance:', err);
+            }
+        };
+
+        window.clearDelivered = async function() {
+            const deliveredKeys = Object.entries(allOrders)
+                .filter(([key, order]) => order.status === 'delivered' || order.status === 'cancelled')
+                .map(([key]) => key);
+                
+            if (deliveredKeys.length === 0) {
+                alert('No delivered or cancelled orders to clear!');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to clear ${deliveredKeys.length} completed orders? This will reset the counter.`)) {
+                try {
+                    const promises = deliveredKeys.map(key => remove(ref(db, `orders/${key}`)));
+                    await Promise.all(promises);
+                    showDashToast('Cleared!', 'All completed orders have been removed.');
+                } catch (err) {
+                    console.error('Failed to clear orders:', err);
+                    alert('Failed to clear orders. Please check connection.');
+                }
             }
         };
 
