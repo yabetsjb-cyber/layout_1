@@ -29,7 +29,7 @@ body {
     max-width: 480px;
     margin: 0 auto;
     min-height: 100vh;
-    padding: 20px;
+    padding: 12px;
     position: relative;
     background-color: var(--bg-dark);
 }
@@ -42,7 +42,7 @@ h3 {
 }
 
 .text-sm {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: var(--text-gray);
 }
 
@@ -135,10 +135,10 @@ header {
 /* Hero Section */
 .hero {
     position: relative;
-    border-radius: 25px;
+    border-radius: 20px;
     overflow: hidden;
-    margin-bottom: 30px;
-    height: 200px;
+    margin-bottom: 20px;
+    height: 140px;
 }
 
 .hero img {
@@ -163,12 +163,12 @@ header {
 
 /* Category Grid */
 .category-section {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .section-title {
-    font-size: 1.1rem;
-    margin-bottom: 15px;
+    font-size: 1rem;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -185,7 +185,7 @@ header {
 .grid-wrapper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    gap: 10px;
 }
 
 .food-item-grid {
@@ -201,8 +201,8 @@ header {
 }
 
 .food-item-grid img {
-    height: 120px;
-    margin-bottom: 10px;
+    height: 90px;
+    margin-bottom: 6px;
     transition: transform 0.3s ease;
 }
 
@@ -321,10 +321,11 @@ header {
     background: var(--card-dark);
     width: 100%;
     max-width: 400px;
-    border-radius: 30px;
+    border-radius: 20px;
     border: 1px solid var(--border-color);
-    padding: 25px;
-    max-height: 80vh;
+    padding: 15px;
+    padding-bottom: 80px;
+    max-height: 85vh;
     overflow-y: auto;
     position: relative;
     animation: slideUp 0.3s ease-out;
@@ -365,8 +366,8 @@ header {
 
 .modal-item {
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 10px;
     display: flex;
     gap: 12px;
     align-items: center;
@@ -430,9 +431,9 @@ header {
 .table-selector {
     background: var(--card-dark);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
+    border-radius: 16px;
+    padding: 10px 16px;
+    margin-bottom: 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -480,8 +481,8 @@ header {
 }
 
 .qty-btn {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     background: var(--bg-dark);
@@ -515,19 +516,19 @@ header {
 /* ========== FLOATING CART BUTTON ========== */
 .cart-fab {
     position: fixed;
-    bottom: 24px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: linear-gradient(135deg, var(--primary-red), #e03e3e);
     color: white;
     border: none;
     border-radius: 20px;
-    padding: 14px 28px;
+    padding: 12px 24px;
     font-family: var(--font-main);
     font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
-    z-index: 500;
+    z-index: 1500;
     display: flex;
     align-items: center;
     gap: 12px;
