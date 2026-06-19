@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order — Food Bank</title>
+    <meta name="description" content="Track your Food Bank order status in real-time.">
+    <link rel="stylesheet" href="track.css">
+</head>
+<body>
+
+    <div class="track-container">
+        <div class="track-header">
+            <a href="index.html" class="track-back">←</a>
+            <div class="track-header-text">
+                <h1>Track Your Order</h1>
+                <p>Real-time status updates</p>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="track-loading" id="trackLoading">
+            <div class="spinner"></div>
+            <p>Loading order details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="track-error" id="trackError" style="display:none;">
+            <div class="track-error-icon">😕</div>
+            <h2>Order Not Found</h2>
+            <p>We couldn't find this order. Please check your order number and try again.</p>
+            <div class="track-footer" style="margin-top:24px;">
+                <a href="index.html">← Back to Menu</a>
+            </div>
+        </div>
+
+        <!-- Order Info -->
+        <div id="trackContent" style="display:none;">
+            <div class="order-info-card">
+                <div class="order-info-top">
+                    <div class="order-info-number" id="trackOrderNum">#----</div>
+                    <div class="order-info-table" id="trackTable">Table —</div>
+                </div>
+                <div class="order-info-items" id="trackItems"></div>
+                <div class="order-info-total">
+                    <span>Total</span>
+                    <span class="order-info-total-value" id="trackTotal">0.00 Birr</span>
+                </div>
+            </div>
+
+            <!-- Progress Stepper -->
+            <div class="progress-stepper">
+                <div class="progress-title">Order Status</div>
+                <div class="stepper">
+                    <div class="step" id="stepNew" data-status="new">
+                        <div class="step-indicator">
+                            <div class="step-dot">📋</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Order Placed</div>
+                            <div class="step-desc">Your order has been received</div>
+                        </div>
+                    </div>
+                    <div class="step" id="stepCooking" data-status="cooking">
+                        <div class="step-indicator">
+                            <div class="step-dot">🔥</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Cooking</div>
+                            <div class="step-desc">Your food is being prepared</div>
+                        </div>
+                    </div>
+                    <div class="step" id="stepReady" data-status="ready">
+                        <div class="step-indicator">
+                            <div class="step-dot">✅</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Ready</div>
+                            <div class="step-desc">Your order is ready for pickup</div>
+                        </div>
+                    </div>
+                    <div class="step" id="stepDelivered" data-status="delivered">
+                        <div class="step-indicator">
+                            <div class="step-dot">🍽️</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Delivered</div>
+                            <div class="step-desc">Enjoy your meal!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="track-footer">
+                <a href="index.html">← Back to Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, ref, onValue } from './firebase-config.js';
+
+        const orderKey = window.location.hash.replace('#', '');
+
+        if (!orderKey) {
+            document.getElementById('trackLoading').style.display = 'none';
+            document.getElementById('trackError').style.display = 'block';
+        } else {
+            const orderRef = ref(db, `orders/${orderKey}`);
+
+            onValue(orderRef, (snapshot) => {
+                const order = snapshot.val();
+
+                document.getElementById('trackLoading').style.display = 'none';
+
+                if (!order) {
+                    document.getElementById('trackError').style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('trackContent').style.display = 'block';
+
+                // Fill order info
+                document.getElementById('trackOrderNum').textContent = `#${order.orderNumber || '----'}`;
+                document.getElementById('trackTable').textContent = `Table ${order.tableNumber || '—'}`;
+
+                // Items
+                const itemsEl = document.getElementById('trackItems');
+                itemsEl.innerHTML = '';
+
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach(it => {
+                        const price = (it.price * (it.quantity || 1)).toFixed(2);
+                        itemsEl.innerHTML += `
+                            <div class="order-info-item">
+                                <div class="order-info-item-left">
+                                    <span class="order-info-item-qty">${it.quantity || 1}x</span>
+                                    <span>${it.name}</span>
+                                </div>
+                                <span class="order-info-item-price">${price} Birr</span>
+                            </div>`;
+                    });
+                } else {
+                    // Legacy single item
+                    itemsEl.innerHTML = `
+                        <div class="order-info-item">
+                            <div class="order-info-item-left">
+                                <span class="order-info-item-qty">1x</span>
+                                <span>${order.item || 'Unknown'}</span>
+                            </div>
+                            <span class="order-info-item-price">${order.price || '0'} Birr</span>
+                        </div>`;
+                }
+
+                // Total
+                const total = order.totalPrice
+                    ? parseFloat(order.totalPrice).toFixed(2)
+                    : (order.price ? order.price.replace('$', '') : '0.00');
+                document.getElementById('trackTotal').textContent = `${total} Birr`;
+
+                // Update stepper
+                updateStepper(order.status || 'new');
+            });
+        }
+
+        function updateStepper(status) {
+            const statusOrder = ['new', 'cooking', 'ready', 'delivered'];
+            const currentIdx = statusOrder.indexOf(status);
+
+            statusOrder.forEach((s, idx) => {
+                const stepEl = document.getElementById('step' + s.charAt(0).toUpperCase() + s.slice(1));
+                stepEl.classList.remove('completed', 'active');
+
+                if (idx < currentIdx) {
+                    stepEl.classList.add('completed');
+                    stepEl.querySelector('.step-dot').textContent = '✓';
+                } else if (idx === currentIdx) {
+                    stepEl.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
