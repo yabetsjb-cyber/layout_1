@@ -20,13 +20,23 @@ import {
 // ⚠️ Replace apiKey, messagingSenderId, and appId with your actual values
 // Find them at: https://console.firebase.google.com/u/0/project/burgershotel-d54cb/settings/general
 const firebaseConfig = {
-    apiKey: "AIzaSyxxxxxxxxxxxxxxxx",
+
+    apiKey: "AIzaSyBmW-ZnLm5-kj-etJKBnBTbIrBZRZBivSM",
+
     authDomain: "burgershotel-d54cb.firebaseapp.com",
+
     databaseURL: "https://burgershotel-d54cb-default-rtdb.firebaseio.com",
+
     projectId: "burgershotel-d54cb",
-    storageBucket: "burgershotel-d54cb.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
+
+    storageBucket: "burgershotel-d54cb.firebasestorage.app",
+
+    messagingSenderId: "626309924971",
+
+    appId: "1:626309924971:web:3c6385d62e230a7c8f092e",
+
+    measurementId: "G-BVDP17W47M"
+
 };
 
 // Initialize Firebase
