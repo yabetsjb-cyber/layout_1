@@ -17,6 +17,13 @@ import {
     equalTo
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
 // ⚠️ Replace apiKey, messagingSenderId, and appId with your actual values
 // Find them at: https://console.firebase.google.com/u/0/project/burgershotel-d54cb/settings/general
 const firebaseConfig = {
@@ -42,9 +49,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
 export {
     db,
+    auth,
     ref,
     push,
     set,
@@ -57,5 +66,8 @@ export {
     onChildRemoved,
     query,
     orderByChild,
-    equalTo
+    equalTo,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
 };
