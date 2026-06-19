@@ -163,6 +163,10 @@
 
                 // Update stepper
                 updateStepper(order.status || 'new');
+
+                if (order.status === 'delivered') {
+                    localStorage.removeItem('activeOrder');
+                }
             });
         }
 
