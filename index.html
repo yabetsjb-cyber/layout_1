@@ -48,12 +48,12 @@
             </select>
         </div>
 
-        <section class="hero">
-            <!-- Using the generated hero banner -->
-            <img src="./assets/hero_food_banner.jpg" alt="Different Kind of Food" fetchpriority="high">
-            <div class="hero-overlay">
-                <h1 class="hero-title">Different<br>Kind of Food</h1>
-            </div>
+        <section class="hero-slider" id="heroSlider">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop" class="slide active" alt="Food 1">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop" class="slide" alt="Food 2">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop" class="slide" alt="Food 3">
+            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=600&auto=format&fit=crop" class="slide" alt="Food 4">
+            <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=600&auto=format&fit=crop" class="slide" alt="Food 5">
         </section>
 
         <section class="category-section">
@@ -436,6 +436,17 @@
         window.closeSummary = closeSummary;
         window.placeFullOrder = placeFullOrder;
         window.removeFromCart = removeFromCart;
+
+        // ===== HERO SLIDER =====
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-slider .slide');
+        if (slides.length > 0) {
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 1000);
+        }
 
         // Close modal on overlay click
         window.onclick = function (event) {
