@@ -566,6 +566,31 @@ header {
     font-weight: 800;
 }
 
+/* ========== ACTIVE ORDER BUTTON ========== */
+.active-order-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--card-dark);
+    color: var(--primary-red);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    z-index: 500;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.active-order-btn:hover {
+    border-color: var(--primary-red);
+}
+
 /* ========== ORDER SUMMARY OVERLAY ========== */
 .order-summary-overlay {
     position: fixed;
