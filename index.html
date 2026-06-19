@@ -316,7 +316,10 @@
                             <div class="summary-item-name">${item.name}</div>
                             <div class="summary-item-meta">${item.quantity}x @ ${item.price.toFixed(2)} Birr</div>
                         </div>
-                        <div class="summary-item-total">${itemTotal.toFixed(2)} Birr</div>
+                        <div class="summary-item-actions">
+                            <div class="summary-item-total">${itemTotal.toFixed(2)} Birr</div>
+                            <button class="summary-item-delete" onclick="removeFromCart('${item.name}', '${item.img}')">✕</button>
+                        </div>
                     </div>
                 `;
             });
@@ -415,6 +418,16 @@
             document.getElementById('categoryModal').style.display = 'none';
         }
 
+        function removeFromCart(name, img) {
+            cart = cart.filter(c => !(c.name === name && c.img === img));
+            updateCartFab();
+            if (cart.length === 0) {
+                closeSummary();
+            } else {
+                openSummary();
+            }
+        }
+
         // Expose to global scope for HTML attributes
         window.showModal = showModal;
         window.changeQty = changeQty;
@@ -422,6 +435,7 @@
         window.openSummary = openSummary;
         window.closeSummary = closeSummary;
         window.placeFullOrder = placeFullOrder;
+        window.removeFromCart = removeFromCart;
 
         // Close modal on overlay click
         window.onclick = function (event) {
