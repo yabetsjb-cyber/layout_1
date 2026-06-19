@@ -13,6 +13,11 @@
 </head>
 
 <body>
+    <!-- Active Order Button -->
+    <a href="#" id="activeOrderBtn" class="active-order-btn" style="display: none;">
+        🕒 Track Order
+    </a>
+
     <div class="container">
 
         <!-- Table Number Selector -->
@@ -207,6 +212,14 @@
             sessionStorage.setItem('tableNumber', e.target.value);
         });
 
+        // Check active order
+        const activeOrder = localStorage.getItem('activeOrder');
+        if (activeOrder) {
+            const trackBtn = document.getElementById('activeOrderBtn');
+            trackBtn.style.display = 'flex';
+            trackBtn.href = `track.html#${activeOrder}`;
+        }
+
         // ===== MODAL =====
         function showModal(category) {
             const modal = document.getElementById('categoryModal');
@@ -361,6 +374,7 @@
                 await set(newOrderRef, order);
 
                 const orderKey = newOrderRef.key;
+                localStorage.setItem('activeOrder', orderKey);
 
                 showToast(`✅ Order #${orderNumber} placed successfully!`);
 
