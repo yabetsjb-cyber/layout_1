@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Bank - Digital Menu</title>
+    <meta name="description" content="Food Bank digital menu. Browse categories, build your order, and track it live.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
@@ -18,6 +19,34 @@
             <div class="logo-space" style="flex: 1;"></div>
             <div class="menu-space" style="width: 24px;"></div>
         </header>
+
+        <!-- Table Number Selector -->
+        <div class="table-selector" id="tableSelector">
+            <div class="table-selector-label">🪑 Select Your Table</div>
+            <select id="tableNumber">
+                <option value="" disabled selected>Table #</option>
+                <option value="1">Table 1</option>
+                <option value="2">Table 2</option>
+                <option value="3">Table 3</option>
+                <option value="4">Table 4</option>
+                <option value="5">Table 5</option>
+                <option value="6">Table 6</option>
+                <option value="7">Table 7</option>
+                <option value="8">Table 8</option>
+                <option value="9">Table 9</option>
+                <option value="10">Table 10</option>
+                <option value="11">Table 11</option>
+                <option value="12">Table 12</option>
+                <option value="13">Table 13</option>
+                <option value="14">Table 14</option>
+                <option value="15">Table 15</option>
+                <option value="16">Table 16</option>
+                <option value="17">Table 17</option>
+                <option value="18">Table 18</option>
+                <option value="19">Table 19</option>
+                <option value="20">Table 20</option>
+            </select>
+        </div>
 
         <section class="hero">
             <!-- Using the generated hero banner -->
@@ -91,59 +120,108 @@
         </div>
     </div>
 
+    <!-- Floating Cart Button -->
+    <button class="cart-fab" id="cartFab" onclick="openSummary()">
+        <span class="cart-fab-badge" id="cartCount">0</span>
+        <span id="cartFabText">View Cart — 0.00 Birr</span>
+    </button>
+
+    <!-- Order Summary Overlay -->
+    <div class="order-summary-overlay" id="summaryOverlay">
+        <div class="order-summary-panel">
+            <div class="summary-header">
+                <h2>Order Summary</h2>
+                <button class="summary-close" onclick="closeSummary()">&times;</button>
+            </div>
+            <div class="summary-table-info">
+                🪑 Delivering to <span class="summary-table-num" id="summaryTableNum">—</span>
+            </div>
+            <div class="summary-items" id="summaryItems">
+                <!-- Items injected -->
+            </div>
+            <div class="summary-footer">
+                <div class="summary-price-row">
+                    <span>Subtotal</span>
+                    <span id="summarySubtotal">0.00 Birr</span>
+                </div>
+                <div class="summary-price-total">
+                    <span>Total</span>
+                    <span class="total-val" id="summaryTotal">0.00 Birr</span>
+                </div>
+                <button class="summary-place-btn" id="placeOrderBtn" onclick="placeFullOrder()">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { db, ref, push, set } from './firebase-config.js';
 
+        // ===== MENU DATA (prices in Birr) =====
         const menuData = {
             'Breakfast': [
-                { name: 'Classic Pancakes', price: '$12.00', img: './Breakfast/1.jpg' },
-                { name: 'Omelet Special', price: '$10.00', img: './Breakfast/1.jpg' },
-                { name: 'Omelet Special', price: '$10.00', img: './Breakfast/1.jpg' },
-                { name: 'Omelet Special', price: '$10.00', img: './Breakfast/1.jpg' },
-                { name: 'Omelet Special', price: '$10.00', img: './Breakfast/1.jpg' },
+                { name: 'Classic Pancakes', price: 350, img: './Breakfast/1.jpg' },
+                { name: 'Omelet Special', price: 280, img: './Breakfast/1.jpg' },
+                { name: 'French Toast', price: 300, img: './Breakfast/1.jpg' },
+                { name: 'Egg Benedict', price: 320, img: './Breakfast/1.jpg' },
+                { name: 'Breakfast Platter', price: 450, img: './Breakfast/1.jpg' },
             ],
             'Lunch': [
-                { name: 'Chicken Salad', price: '$15.00', img: './Lunch/1.jpg' },
-                { name: 'Club Sandwich', price: '$14.00', img: './Lunch/1.jpg' },
-                { name: 'Club Sandwich', price: '$14.00', img: './Lunch/1.jpg' },
-                { name: 'Club Sandwich', price: '$14.00', img: './Lunch/1.jpg' },
-                { name: 'Club Sandwich', price: '$14.00', img: './Lunch/1.jpg' },
+                { name: 'Chicken Salad', price: 420, img: './Lunch/1.jpg' },
+                { name: 'Club Sandwich', price: 380, img: './Lunch/1.jpg' },
+                { name: 'Beef Burger', price: 450, img: './Lunch/1.jpg' },
+                { name: 'Pasta Bolognese', price: 400, img: './Lunch/1.jpg' },
+                { name: 'Grilled Wrap', price: 350, img: './Lunch/1.jpg' },
             ],
             'Snack': [
-                { name: 'French Fries', price: '$8.00', img: './Snack/1.jpg' },
-                { name: 'Chicken Wings', price: '$12.00', img: './Snack/1.jpg' },
-                { name: 'French Fries', price: '$8.00', img: './Snack/1.jpg' },
-                { name: 'Chicken Wings', price: '$12.00', img: './Snack/1.jpg' },
-                { name: 'French Fries', price: '$8.00', img: './Snack/1.jpg' },
-                { name: 'Chicken Wings', price: '$12.00', img: './Snack/1.jpg' },
+                { name: 'French Fries', price: 180, img: './Snack/1.jpg' },
+                { name: 'Chicken Wings', price: 320, img: './Snack/1.jpg' },
+                { name: 'Mozzarella Sticks', price: 250, img: './Snack/1.jpg' },
+                { name: 'Nachos', price: 280, img: './Snack/1.jpg' },
+                { name: 'Spring Rolls', price: 220, img: './Snack/1.jpg' },
+                { name: 'Onion Rings', price: 200, img: './Snack/1.jpg' },
             ],
             'Dinner': [
-                { name: 'Grilled Salmon', price: '$22.00', img: './Dinner/1.jpg' },
-                { name: 'Steak Frites', price: '$28.00', img: './Dinner/1.jpg' },
-                { name: 'Grilled Salmon', price: '$22.00', img: './Dinner/1.jpg' },
-                { name: 'Steak Frites', price: '$28.00', img: './Dinner/1.jpg' },
-                { name: 'Grilled Salmon', price: '$22.00', img: './Dinner/1.jpg' },
-                { name: 'Steak Frites', price: '$28.00', img: './Dinner/1.jpg' },
+                { name: 'Grilled Salmon', price: 650, img: './Dinner/1.jpg' },
+                { name: 'Steak Frites', price: 780, img: './Dinner/1.jpg' },
+                { name: 'Lamb Chops', price: 720, img: './Dinner/1.jpg' },
+                { name: 'Chicken Alfredo', price: 550, img: './Dinner/1.jpg' },
+                { name: 'Seafood Platter', price: 850, img: './Dinner/1.jpg' },
+                { name: 'Veggie Bowl', price: 400, img: './Dinner/1.jpg' },
             ],
             'Soft Drinks': [
-                { name: 'Coca Cola', price: '$3.00', img: './Softdrink/1.jpg' },
-                { name: 'Fresh Orange Juice', price: '$5.00', img: './Softdrink/1.jpg' },
-                { name: 'Coca Cola', price: '$3.00', img: './Softdrink/1.jpg' },
-                { name: 'Fresh Orange Juice', price: '$5.00', img: './Softdrink/1.jpg' },
-                { name: 'Coca Cola', price: '$3.00', img: './Softdrink/1.jpg' },
-                { name: 'Fresh Orange Juice', price: '$5.00', img: './Softdrink/1.jpg' },
+                { name: 'Coca Cola', price: 80, img: './Softdrink/1.jpg' },
+                { name: 'Fresh Orange Juice', price: 120, img: './Softdrink/1.jpg' },
+                { name: 'Sprite', price: 80, img: './Softdrink/1.jpg' },
+                { name: 'Mango Smoothie', price: 150, img: './Softdrink/1.jpg' },
+                { name: 'Lemonade', price: 100, img: './Softdrink/1.jpg' },
+                { name: 'Iced Tea', price: 90, img: './Softdrink/1.jpg' },
             ],
             'Hot Drinks': [
-                { name: 'Cappuccino', price: '$4.50', img: './Hotdrink/1.jpg' },
-                { name: 'Earl Grey Tea', price: '$3.50', img: './Hotdrink/1.jpg' },
-                { name: 'Cappuccino', price: '$4.50', img: './Hotdrink/1.jpg' },
-                { name: 'Earl Grey Tea', price: '$3.50', img: './Hotdrink/1.jpg' },
-                { name: 'Cappuccino', price: '$4.50', img: './Hotdrink/1.jpg' },
-                { name: 'Earl Grey Tea', price: '$3.50', img: './Hotdrink/1.jpg' },
+                { name: 'Cappuccino', price: 120, img: './Hotdrink/1.jpg' },
+                { name: 'Earl Grey Tea', price: 90, img: './Hotdrink/1.jpg' },
+                { name: 'Espresso', price: 80, img: './Hotdrink/1.jpg' },
+                { name: 'Latte', price: 130, img: './Hotdrink/1.jpg' },
+                { name: 'Hot Chocolate', price: 140, img: './Hotdrink/1.jpg' },
+                { name: 'Macchiato', price: 100, img: './Hotdrink/1.jpg' },
             ]
         };
 
+        // ===== CART STATE =====
+        let cart = []; // Array of { name, price, img, quantity }
+
+        // Restore table from session
+        const savedTable = sessionStorage.getItem('tableNumber');
+        if (savedTable) {
+            document.getElementById('tableNumber').value = savedTable;
+        }
+
+        document.getElementById('tableNumber').addEventListener('change', (e) => {
+            sessionStorage.setItem('tableNumber', e.target.value);
+        });
+
+        // ===== MODAL =====
         function showModal(category) {
             const modal = document.getElementById('categoryModal');
             const title = document.getElementById('modalTitle');
@@ -154,15 +232,23 @@
 
             const items = menuData[category] || [];
             items.forEach(item => {
+                // Check if already in cart
+                const cartItem = cart.find(c => c.name === item.name && c.img === item.img);
+                const qty = cartItem ? cartItem.quantity : 0;
+
                 const itemEl = document.createElement('div');
                 itemEl.className = 'modal-item';
                 itemEl.innerHTML = `
                     <img src="${item.img}" alt="${item.name}" loading="lazy">
                     <div class="modal-item-info">
                         <p class="modal-item-name">${item.name}</p>
-                        <p class="modal-item-price">${item.price}</p>
+                        <p class="modal-item-price">${item.price.toFixed(2)} Birr</p>
                     </div>
-                    <button class="btn btn-primary btn-mini" style="width: auto;" onclick='placeOrder(${JSON.stringify(item)})'>Order</button>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="changeQty('${item.name}', ${item.price}, '${item.img}', -1, this)">−</button>
+                        <span class="qty-value">${qty}</span>
+                        <button class="qty-btn" onclick="changeQty('${item.name}', ${item.price}, '${item.img}', 1, this)">+</button>
+                    </div>
                 `;
                 itemsContainer.appendChild(itemEl);
             });
@@ -170,15 +256,114 @@
             modal.style.display = 'flex';
         }
 
-        async function placeOrder(item) {
+        // ===== QUANTITY CONTROL =====
+        function changeQty(name, price, img, delta, btnEl) {
+            let item = cart.find(c => c.name === name && c.img === img);
+
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(c => c !== item);
+                }
+            } else if (delta > 0) {
+                cart.push({ name, price, img, quantity: 1 });
+            }
+
+            // Update the qty display in the modal row
+            const qtySpan = btnEl.parentElement.querySelector('.qty-value');
+            const currentItem = cart.find(c => c.name === name && c.img === img);
+            qtySpan.textContent = currentItem ? currentItem.quantity : 0;
+
+            updateCartFab();
+        }
+
+        // ===== UPDATE CART FAB =====
+        function updateCartFab() {
+            const fab = document.getElementById('cartFab');
+            const countEl = document.getElementById('cartCount');
+            const textEl = document.getElementById('cartFabText');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            countEl.textContent = totalItems;
+            textEl.textContent = `View Cart — ${totalPrice.toFixed(2)} Birr`;
+
+            if (totalItems > 0) {
+                fab.classList.add('visible');
+            } else {
+                fab.classList.remove('visible');
+            }
+        }
+
+        // ===== SUMMARY =====
+        function openSummary() {
+            if (cart.length === 0) return;
+
+            const tableNum = document.getElementById('tableNumber').value;
+            document.getElementById('summaryTableNum').textContent = tableNum ? `Table ${tableNum}` : 'Not selected';
+
+            const itemsEl = document.getElementById('summaryItems');
+            itemsEl.innerHTML = '';
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                itemsEl.innerHTML += `
+                    <div class="summary-item">
+                        <img src="${item.img}" alt="${item.name}" class="summary-item-img">
+                        <div class="summary-item-info">
+                            <div class="summary-item-name">${item.name}</div>
+                            <div class="summary-item-meta">${item.quantity}x @ ${item.price.toFixed(2)} Birr</div>
+                        </div>
+                        <div class="summary-item-total">${itemTotal.toFixed(2)} Birr</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('summarySubtotal').textContent = `${subtotal.toFixed(2)} Birr`;
+            document.getElementById('summaryTotal').textContent = `${subtotal.toFixed(2)} Birr`;
+
+            document.getElementById('summaryOverlay').classList.add('open');
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryOverlay').classList.remove('open');
+        }
+
+        // ===== PLACE ORDER =====
+        async function placeFullOrder() {
+            const tableNum = document.getElementById('tableNumber').value;
+            if (!tableNum) {
+                showToast('⚠️ Please select a table number first!');
+                closeSummary();
+                document.getElementById('tableNumber').focus();
+                return;
+            }
+
+            if (cart.length === 0) {
+                showToast('⚠️ Your cart is empty!');
+                return;
+            }
+
+            const btn = document.getElementById('placeOrderBtn');
+            btn.disabled = true;
+            btn.textContent = 'Placing Order...';
 
             const orderNumber = Math.floor(1000 + Math.random() * 9000).toString();
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
             const order = {
-                id: Date.now(),
                 orderNumber: orderNumber,
-                item: item.name,
-                price: item.price,
-                img: item.img,
+                tableNumber: parseInt(tableNum),
+                items: cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    img: item.img,
+                    quantity: item.quantity
+                })),
+                totalPrice: totalPrice,
                 status: 'new',
                 time: new Date().toLocaleTimeString(),
                 timestamp: Date.now()
@@ -189,15 +374,31 @@
                 const newOrderRef = push(ordersRef);
                 await set(newOrderRef, order);
 
+                const orderKey = newOrderRef.key;
+
                 showToast(`✅ Order #${orderNumber} placed successfully!`);
+
+                // Clear cart
+                cart = [];
+                updateCartFab();
+                closeSummary();
                 closeModal();
+
+                // Redirect to tracking page
+                setTimeout(() => {
+                    window.location.href = `track.html#${orderKey}`;
+                }, 1500);
 
             } catch (error) {
                 console.error("Error placing order:", error);
-                showToast("❌ Failed to place order.");
+                showToast("❌ Failed to place order. Please try again.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
             }
         }
 
+        // ===== TOAST =====
         function showToast(message) {
             let toast = document.querySelector('.order-toast');
             if (!toast) {
@@ -210,22 +411,27 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-
         function closeModal() {
             document.getElementById('categoryModal').style.display = 'none';
         }
 
         // Expose to global scope for HTML attributes
         window.showModal = showModal;
-        window.placeOrder = placeOrder;
+        window.changeQty = changeQty;
         window.closeModal = closeModal;
+        window.openSummary = openSummary;
+        window.closeSummary = closeSummary;
+        window.placeFullOrder = placeFullOrder;
 
-
-        // Close on overlay click
+        // Close modal on overlay click
         window.onclick = function (event) {
             const modal = document.getElementById('categoryModal');
             if (event.target == modal) {
                 closeModal();
+            }
+            const summary = document.getElementById('summaryOverlay');
+            if (event.target == summary) {
+                closeSummary();
             }
         }
     </script>
