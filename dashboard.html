@@ -168,8 +168,18 @@
                 actionBtn = `<button class="order-action-btn btn-mark-delivered" onclick="updateStatus('${key}', 'delivered')">🍽️ Mark Delivered</button>`;
             }
 
+            let assistanceHtml = '';
+            if (order.needsAssistance && status !== 'delivered') {
+                assistanceHtml = `
+                    <div class="assistance-banner">
+                        <span>🔔 Waiter Needed!</span>
+                        <button onclick="clearAssistance('${key}')" class="btn-clear-assistance">Clear</button>
+                    </div>`;
+            }
+
             return `
                 <div class="order-card status-${status}" id="card-${key}">
+                    ${assistanceHtml}
                     <div class="order-card-header">
                         <div class="order-number">#${order.orderNumber || '----'}</div>
                         <div class="table-badge">Table ${order.tableNumber || '—'}</div>
@@ -208,7 +218,7 @@
                 delivered: '<div class="empty-column"><div class="empty-icon">✨</div><div class="empty-text">No deliveries yet</div></div>'
             };
 
-            ['new', 'cooking', 'ready', 'delivered'].forEach(status => {
+            ['new', 'cooking', 'ready'].forEach(status => {
                 const colEl = document.getElementById('col' + status.charAt(0).toUpperCase() + status.slice(1));
                 if (columns[status].length === 0) {
                     colEl.innerHTML = emptyStates[status];
@@ -216,6 +226,14 @@
                     colEl.innerHTML = columns[status].map(({ key, order }) => buildOrderCard(key, order)).join('');
                 }
             });
+
+            // For delivered, we hide the cards to save space but keep the total numbers
+            const colDeliveredEl = document.getElementById('colDelivered');
+            if (columns.delivered.length > 0) {
+                colDeliveredEl.innerHTML = `<div class="empty-column"><div class="empty-icon">🎉</div><div class="empty-text">${columns.delivered.length} orders delivered today</div></div>`;
+            } else {
+                colDeliveredEl.innerHTML = emptyStates.delivered;
+            }
 
             // Update counts
             document.getElementById('countNew').textContent = columns.new.length;
@@ -239,24 +257,42 @@
             }
         };
 
+        window.clearAssistance = async function(key) {
+            try {
+                const orderRef = ref(db, `orders/${key}`);
+                await update(orderRef, { needsAssistance: false });
+            } catch (err) {
+                console.error('Failed to clear assistance:', err);
+            }
+        };
+
         // --- Listen to Firebase ---
         const ordersRef = ref(db, 'orders');
         onValue(ordersRef, (snapshot) => {
             const data = snapshot.val() || {};
-            const prevKeys = Object.keys(allOrders);
-
+            const prevOrders = { ...allOrders };
             allOrders = data;
             renderOrders();
 
-            // Detect new orders (only after initial load)
+            // Detect new orders and waiter calls
             if (!initialLoad) {
-                const newKeys = Object.keys(data).filter(k => !prevKeys.includes(k));
-                newKeys.forEach(k => {
+                Object.keys(data).forEach(k => {
                     const order = data[k];
-                    showDashToast(
-                        `New Order #${order.orderNumber || ''}`,
-                        `Table ${order.tableNumber || '—'} • ${order.totalPrice ? order.totalPrice.toFixed(2) + ' Birr' : order.price || ''}`
-                    );
+                    if (!prevOrders[k]) {
+                        showDashToast(
+                            `New Order #${order.orderNumber || ''}`,
+                            `Table ${order.tableNumber || '—'} • ${order.totalPrice ? order.totalPrice.toFixed(2) + ' Birr' : order.price || ''}`
+                        );
+                        const audio = document.getElementById('notifSound');
+                        if(audio) audio.play().catch(e=>console.log("Audio play blocked",e));
+                    } else if (order.needsAssistance && !prevOrders[k].needsAssistance) {
+                        showDashToast(
+                            `🔔 Waiter Needed!`,
+                            `Table ${order.tableNumber || '—'} (Order #${order.orderNumber || ''})`
+                        );
+                        const audio = document.getElementById('notifSound');
+                        if(audio) audio.play().catch(e=>console.log("Audio play blocked",e));
+                    }
                 });
             }
             initialLoad = false;
