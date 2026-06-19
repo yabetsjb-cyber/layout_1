@@ -94,6 +94,12 @@
                 </div>
             </div>
 
+            <!-- Action Buttons -->
+            <div class="track-actions" id="trackActions">
+                <button class="track-btn secondary" id="btnCallWaiter" onclick="callWaiter()">🔔 Call Waiter</button>
+                <button class="track-btn primary" id="btnCancelOrder" onclick="cancelOrder()" style="display: none;">Cancel Order</button>
+            </div>
+
             <div class="track-footer">
                 <a href="index.html">← Back to Menu</a>
             </div>
@@ -101,7 +107,7 @@
     </div>
 
     <script type="module">
-        import { db, ref, onValue } from './firebase-config.js';
+        import { db, ref, onValue, update } from './firebase-config.js';
 
         const orderKey = window.location.hash.replace('#', '');
 
@@ -164,6 +170,25 @@
                 // Update stepper
                 updateStepper(order.status || 'new');
 
+                if (order.status === 'new') {
+                    document.getElementById('btnCancelOrder').style.display = 'block';
+                } else {
+                    document.getElementById('btnCancelOrder').style.display = 'none';
+                }
+
+                if (order.status === 'cancelled') {
+                    document.getElementById('trackContent').innerHTML = `
+                        <div style="text-align: center; padding: 40px 0;">
+                            <div style="font-size: 3rem; margin-bottom: 16px;">❌</div>
+                            <h2 style="font-size: 1.2rem; margin-bottom: 8px;">Order Cancelled</h2>
+                            <p style="color: var(--text-gray); font-size: 0.9rem;">Your order has been cancelled.</p>
+                            <a href="index.html" class="track-btn primary" style="display: inline-block; margin-top: 24px; padding: 12px 24px; text-decoration: none;">Back to Menu</a>
+                        </div>
+                    `;
+                    localStorage.removeItem('activeOrder');
+                    return;
+                }
+
                 if (order.status === 'delivered') {
                     localStorage.removeItem('activeOrder');
                 }
@@ -186,6 +211,24 @@
                 }
             });
         }
+
+        window.cancelOrder = async function() {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                const orderRef = ref(db, `orders/${orderKey}`);
+                await update(orderRef, { status: 'cancelled' });
+            }
+        };
+
+        window.callWaiter = async function() {
+            const btn = document.getElementById('btnCallWaiter');
+            btn.disabled = true;
+            btn.textContent = 'Calling...';
+            const orderRef = ref(db, `orders/${orderKey}`);
+            await update(orderRef, { needsAssistance: true });
+            setTimeout(() => {
+                btn.textContent = '✅ Waiter Notified';
+            }, 1000);
+        };
     </script>
 </body>
 </html>
